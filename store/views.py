@@ -3,9 +3,10 @@ from rest_framework.authentication import BasicAuthentication, SessionAuthentica
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
-from .serializers import OrderItemSerializer,ItemSerializer, ProductSerializer, CategorySearializer, OrderSerializer
+from .serializers import ItemSerializer, ProductSerializer, CategorySearializer, OrderSerializer
 from .models import Category, OrderItem, Products, Order
 import json
+import random
 
 
 class LatestProductList(APIView):
@@ -17,12 +18,24 @@ class LatestProductList(APIView):
         return Response(serializer.data)
 
 
+class RandomProduct(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicAuthentication,
+                              TokenAuthentication, SessionAuthentication]
+
+    def get(self, request, fromat=None):
+        products = Products.objects.all()
+        random_produuct = random.choice(products)
+        serializer = ProductSerializer(random_produuct)
+        return Response(serializer.data, status=200)
+
+
 class ProductDetailView(APIView):
     permission_classes = [AllowAny]
 
     def get_object(self, product_id):
         try:
-            return Products.objects.filter(id = product_id).first()
+            return Products.objects.filter(id=product_id).first()
         except Products.DoesNotExist:
             return Http404
 
@@ -82,7 +95,6 @@ class AddItemToCartView(APIView):
     def post(self, request, format=None):
         product_id = request.data['product_id']
         quantity = request.data['quantity']
-       
 
         order, created = Order.objects.get_or_create(user=request.user)
         product = self.get_product_object(product_id)
@@ -130,7 +142,7 @@ class RemoveFromCartView(APIView):
 
         if order_item.quantity <= 1:
             order_item.delete()
-            return Response("Updated" , status = 200)
+            return Response("Updated", status=200)
 
         serializer = ItemSerializer(order_item, data={
             "quantity": order_item.quantity - 1

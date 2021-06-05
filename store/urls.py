@@ -7,7 +7,8 @@ from .views import (
     CategoryListView,
     OrdersListView,
     AddItemToCartView,
-    RemoveFromCartView
+    RemoveFromCartView,
+    RandomProduct
 )
 urlpatterns = [
     path('products/', LatestProductList.as_view(), name="products_list"),
@@ -19,5 +20,6 @@ urlpatterns = [
     path('add/cart/product/',
          AddItemToCartView.as_view(), name="add_cart"),
     path('remove/cart/',
-         RemoveFromCartView.as_view(), name="remove_cart")
+         RemoveFromCartView.as_view(), name="remove_cart"),
+    path('random/product/', RandomProduct.as_view(), name="random_product")
 ]
