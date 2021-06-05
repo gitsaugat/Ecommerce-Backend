@@ -25,12 +25,11 @@ SECRET_KEY = 'django-insecure-io7%*xfyxa80_czx8gyd=+#07dggji=5o1%==s*ry)$1sa28*+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['secure-sea-80627.herokuapp.com']
-
-
+ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,10 +41,11 @@ INSTALLED_APPS = [
     'store',
     'users',
     'stripe_hook',
-    'esewa_hook'
+    'esewa_hook',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -75,6 +75,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ecom.wsgi.application'
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Database
