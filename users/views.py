@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated,  AllowAny
 from rest_framework.authentication import TokenAuthentication, BasicAuthentication, SessionAuthentication
+from rest_framework.parsers import FileUploadParser, FormParser, JSONParser
 # Create your views here.
 
 
@@ -21,12 +22,14 @@ class UserListView(APIView):
 
 class UserRegistrationView(APIView):
     permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
 
     def post(self, request, format=None):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response("account created", status=200)
+            return Response(serializer.data)
+
         else:
             return Response(serializer.errors, status=400)
 
