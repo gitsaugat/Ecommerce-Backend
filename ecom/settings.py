@@ -27,23 +27,34 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 # Application definition
-
-INSTALLED_APPS = [
-    'corsheaders',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework.authtoken',
+CUSTOM_APPS = [
     'store',
     'users',
     'stripe_hook',
     'esewa_hook',
     'support',
 ]
+
+THIRD_PARTY_APPS = [
+    'channels',
+    'corsheaders',
+    'rest_framework',
+    'rest_framework.authtoken',
+]
+
+INSTALLED_APPS = [
+
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+]
+
+INSTALLED_APPS += CUSTOM_APPS
+INSTALLED_APPS += THIRD_PARTY_APPS
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -76,6 +87,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ecom.wsgi.application'
+
+ASGI_APPLICATION = 'ecom.asgi.application'
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 
