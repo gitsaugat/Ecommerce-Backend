@@ -13,7 +13,7 @@ class LatestProductList(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, format=None):
-        products = Products.objects.all()
+        products = Products.objects.all()[0:6]
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 

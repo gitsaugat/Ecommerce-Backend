@@ -1,10 +1,10 @@
 import re
-from store.serializers import OrderSerializer
+from store.serializers import OrderSerializer  # type:ignore
 import uuid
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from .serializers import PaymentsSerializer, OrderInfoSerializer
-from store.models import Order
+from store.models import Order  # type:ignore
 from .models import StripePayment, StripeOrderInfo
 from rest_framework.views import APIView
 from rest_framework.response import Response

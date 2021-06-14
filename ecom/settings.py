@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'users',
     'stripe_hook',
     'esewa_hook',
+    'support',
 ]
 
 MIDDLEWARE = [
