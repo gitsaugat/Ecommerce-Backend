@@ -15,8 +15,7 @@ class StripePayment(models.Model):
     amount = models.DecimalField(decimal_places=2, max_digits=100)
     payment_method = models.CharField(
         choices=PAYMENT_CHOICES, default='ESEWA', max_length=10, null=False, blank=False)
-    card_number = models.CharField(
-        max_length=200, null=False, blank=False)
+
     date_paid = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

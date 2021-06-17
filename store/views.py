@@ -58,7 +58,7 @@ class OrdersListView(APIView):
     permission_classes = [IsAdminUser, IsAuthenticated]
 
     def get(self, request, format=None):
-        orders = Order.objects.all()
+        orders = Order.objects.all(user=request.user, completed=True)
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
 
@@ -72,7 +72,8 @@ class OrderItemView(APIView):
     ]
 
     def get(self, request, format=None):
-        order, created = Order.objects.get_or_create(user=request.user)
+        order, created = Order.objects.get_or_create(
+            user=request.user, completed=not True)
         serializer = OrderSerializer(order)
         return Response(serializer.data)
 
@@ -96,10 +97,12 @@ class AddItemToCartView(APIView):
         product_id = request.data['product_id']
         quantity = request.data['quantity']
 
-        order, created = Order.objects.get_or_create(user=request.user)
+        order, created = Order.objects.get_or_create(
+            user=request.user, completed=False)
         product = self.get_product_object(product_id)
         try:
-            order_item = OrderItem.objects.get(product=product_id)
+            order_item = OrderItem.objects.get(
+                order=order,  product=product_id)
             if order_item:
                 serializer = ItemSerializer(order_item, data={
                     'quantity': int(order_item.quantity) + int(quantity),

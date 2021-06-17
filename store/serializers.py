@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Products,  Category, Order, OrderItem
 
+
 class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -15,8 +16,10 @@ class ProductSerializer(serializers.ModelSerializer):
             'get_thumbnail_url',
         ]
 
+
 class OrderItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer()
+
     class Meta:
         model = OrderItem
         fields = [
@@ -24,10 +27,12 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'product'
         ]
 
+
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = '__all__'
+
 
 class OrderSerializer(serializers.ModelSerializer):
     orderitem_orders = OrderItemSerializer(many=True)
@@ -43,8 +48,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'orderitem_orders',
             'get_cart_total'
         ]
-
-
 
 
 class CategorySearializer(serializers.ModelSerializer):

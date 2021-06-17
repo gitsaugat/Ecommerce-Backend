@@ -5,8 +5,6 @@ from django.core.files import File
 from django.contrib.auth.models import User
 import math
 
-# Create your models here.
-
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
@@ -26,6 +24,7 @@ class Category(models.Model):
 
 
 class Products(models.Model):
+
     category = models.ForeignKey(
         Category, related_name="category_products", on_delete=models.CASCADE)
     name = models.CharField(max_length=250)

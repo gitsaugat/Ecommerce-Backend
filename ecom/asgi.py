@@ -1,4 +1,6 @@
 import os
+from django.conf.urls import url
+from support.consumers import CustomerSupportConsumer
 from channels.auth import AuthMiddlewareStack
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
@@ -12,7 +14,7 @@ application = ProtocolTypeRouter({
         AuthMiddlewareStack(
             URLRouter(
                 [
-
+                    url(r'support/', CustomerSupportConsumer.as_asgi())
                 ]
             )
         )

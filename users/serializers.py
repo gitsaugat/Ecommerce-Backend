@@ -30,7 +30,6 @@ class UserSerializer(serializers.ModelSerializer):
             if user.email == attrs['email']:
                 raise serializers.ValidationError(
                     {'email': 'user with that email already exists'})
-
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError(
                 {'password': 'Both passwords should be same'})
