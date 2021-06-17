@@ -8,14 +8,10 @@ from .models import StripePayment, StripeOrderInfo
 from rest_framework.views import APIView
 from rest_framework.response import Response
 import stripe
+from django.conf import settings
 
 
-stripe_api_key = {
-    'pk': 'pk_test_51ICy9QFynavadh4l6xAqRalcKAw5Cj3QZVKmTc11egr4X4jTaMmPZ5jemUZFnIxw5ri0hbLzhpawVZOBOsnCj0UH00geQMlFiH',
-    'sk': 'sk_test_51ICy9QFynavadh4lw5ckTLdbJhMUExxI9Z141XSMle0p9pJgM3ZYElfVQspkT6WIOT7jgwACnvJScehKDldJP4M800v2em63Fh'
-}
-
-stripe.api_key = stripe_api_key['sk']
+stripe.api_key = settings.STRIPE_API_KEYS['sk']
 
 
 class StripeProvider(APIView):
