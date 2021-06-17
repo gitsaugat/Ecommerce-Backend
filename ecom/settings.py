@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import django_heroku
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -27,24 +29,37 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 # Application definition
+CUSTOM_APPS = [
+    'store',
+    'users',
+    'stripe_hook',
+    'esewa_hook',
+    'support',
+]
+
+THIRD_PARTY_APPS = [
+    'channels',
+    'corsheaders',
+    'rest_framework',
+    'rest_framework.authtoken',
+]
 
 INSTALLED_APPS = [
-    'corsheaders',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'store',
-    'users',
-    'stripe_hook',
-    'esewa_hook',
 ]
 
+INSTALLED_APPS += CUSTOM_APPS
+INSTALLED_APPS += THIRD_PARTY_APPS
+
+
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -75,6 +90,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ecom.wsgi.application'
+
+ASGI_APPLICATION = 'ecom.asgi.application'
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 

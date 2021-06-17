@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from .models import StripePayment, StripeOrderInfo
 from store.models import Order
 from store.serializers import OrderSerializer  # type:ignore

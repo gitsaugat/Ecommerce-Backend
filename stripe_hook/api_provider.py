@@ -1,15 +1,13 @@
-import re
-from store.serializers import OrderSerializer
+import secrets
+from store.serializers import OrderSerializer  # type:ignore
 import uuid
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from .serializers import PaymentsSerializer, OrderInfoSerializer
-from store.models import Order
+from store.models import Order  # type:ignore
 from .models import StripePayment, StripeOrderInfo
 from rest_framework.views import APIView
 from rest_framework.response import Response
 import stripe
-import math
 
 
 stripe_api_key = {
@@ -26,50 +24,42 @@ class StripeProvider(APIView):
                               TokenAuthentication, SessionAuthentication]
 
     def post(self, request, format=None):
-        order, creatd = Order.objects.get_or_create(
+        order, created = Order.objects.get_or_create(
             user=request.user, completed=not True)
-        request.data['card_number'] = "hello"
-        request.data['amount'] = order.get_cart_total()
-        request.data['order'] = order.id
-        if order.get_cart_total() > 1:
+        data = (request.data)
+        token = request.data['token']['token']['id']
+        user_data = request.data['user_data']
 
-            newpayment = PaymentsSerializer(data=request.data)
-            new_order = OrderInfoSerializer(data=request.data)
+        if data:
+            if order:
+                get_total = order.get_cart_total()
+                try:
+                    charge = stripe.Charge.create(
+                        amount=get_total,
+                        currency='usd',
+                        description='Charge for shopping',
+                        source=token
 
-            if newpayment.is_valid():
-                newpayment.payments_order = order
-                newpayment.save()
-            else:
-                return Response(newpayment.errors, status=400)
+                    )
+                    order.completed = not order.completed
+                    order.transaction_id = secrets.token_hex(28)
+                    order.save()
 
-            if new_order.is_valid():
-                new_order.stripe_payment_object = newpayment
-                new_order.save()
-            else:
+                    payment = StripePayment.objects.create(
+                        order=order,
+                        amount=get_total,
+                        payment_method='STRIPE',
+                    )
+                    payment.save()
 
-                return Response(new_order.errors, status=400)
-
-            order.completed = True
-            order.transaction_id = uuid.uuid4()
-            order.save()
-            try:
-                intent = stripe.PaymentIntent.create(
-                    amount=order.get_cart_total(),
-                    currency='usd'
-                )
-            except Exception as e:
-                StripeOrderInfo.objects.get(payment_object=newpayment).delete()
-                StripePayment.objects.get(id=newpayment.id).delete()
-                return Response(str(e), status=400)
-            try:
-                payment = PaymentsSerializer(newpayment)
-                order_ = OrderInfoSerializer(new_order)
-                return Response({
-                    'payment': payment,
-                    'order': order,
-                    'status': 'success'
-                }, status=200)
-            except Exception as e:
-                return Response(str(e), status=400)
-        else:
-            return Response('Your transaction amount must be greater than 1', status=400)
+                    order_info = StripeOrderInfo.objects.create(
+                        payment_object=payment,
+                        full_name=user_data['name'],
+                        email=user_data['email'],
+                        delivery_address=user_data['address'],
+                        phone_number=user_data['contact_no']
+                    )
+                    order_info.save()
+                except:
+                    return Response('Couldnt Create Charge', status=401)
+                return Response('Charge Created', status=200)

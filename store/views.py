@@ -3,18 +3,31 @@ from rest_framework.authentication import BasicAuthentication, SessionAuthentica
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
-from .serializers import OrderItemSerializer,ItemSerializer, ProductSerializer, CategorySearializer, OrderSerializer
+from .serializers import ItemSerializer, ProductSerializer, CategorySearializer, OrderSerializer
 from .models import Category, OrderItem, Products, Order
 import json
+import random
 
 
 class LatestProductList(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, format=None):
-        products = Products.objects.all()
+        products = Products.objects.all()[0:6]
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
+
+
+class RandomProduct(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicAuthentication,
+                              TokenAuthentication, SessionAuthentication]
+
+    def get(self, request, fromat=None):
+        products = Products.objects.all()
+        random_produuct = random.choice(products)
+        serializer = ProductSerializer(random_produuct)
+        return Response(serializer.data, status=200)
 
 
 class ProductDetailView(APIView):
@@ -22,7 +35,7 @@ class ProductDetailView(APIView):
 
     def get_object(self, product_id):
         try:
-            return Products.objects.filter(id = product_id).first()
+            return Products.objects.filter(id=product_id).first()
         except Products.DoesNotExist:
             return Http404
 
@@ -45,7 +58,7 @@ class OrdersListView(APIView):
     permission_classes = [IsAdminUser, IsAuthenticated]
 
     def get(self, request, format=None):
-        orders = Order.objects.all()
+        orders = Order.objects.all(user=request.user, completed=True)
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
 
@@ -59,7 +72,8 @@ class OrderItemView(APIView):
     ]
 
     def get(self, request, format=None):
-        order, created = Order.objects.get_or_create(user=request.user)
+        order, created = Order.objects.get_or_create(
+            user=request.user, completed=not True)
         serializer = OrderSerializer(order)
         return Response(serializer.data)
 
@@ -82,12 +96,13 @@ class AddItemToCartView(APIView):
     def post(self, request, format=None):
         product_id = request.data['product_id']
         quantity = request.data['quantity']
-       
 
-        order, created = Order.objects.get_or_create(user=request.user)
+        order, created = Order.objects.get_or_create(
+            user=request.user, completed=False)
         product = self.get_product_object(product_id)
         try:
-            order_item = OrderItem.objects.get(product=product_id)
+            order_item = OrderItem.objects.get(
+                order=order,  product=product_id)
             if order_item:
                 serializer = ItemSerializer(order_item, data={
                     'quantity': int(order_item.quantity) + int(quantity),
@@ -130,7 +145,7 @@ class RemoveFromCartView(APIView):
 
         if order_item.quantity <= 1:
             order_item.delete()
-            return Response("Updated" , status = 200)
+            return Response("Updated", status=200)
 
         serializer = ItemSerializer(order_item, data={
             "quantity": order_item.quantity - 1
